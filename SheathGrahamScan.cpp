@@ -2,19 +2,21 @@
 #include <algorithm>
 #include <vector>
 #include <stack>
+#include <iostream>
+
 SheathGrahamScan::SheathGrahamScan(const std::vector<sf::Vector2f> &points)
   :points(points)
 {}
-std::vector<Edge> SheathGrahamScan::getSheath()
+std::vector<sf::Vector2f> SheathGrahamScan::getSheath()
 {
   int bottomIdx = findMostBottomPoint();
-  std::iter_swap(0, bottomIdx);
-  std::sort(points.begin()+1, points.end(), [](const sf::Vector2f &a, const sf::Vector2f &b)
+  std::iter_swap(points.begin(), points.begin() + bottomIdx);
+  std::sort(points.begin()+1, points.end(), [this](const sf::Vector2f &a, const sf::Vector2f &b)
   {
-    Orientation orientation calculateOrientation(points[0],a,b);
-    if(orienation == Orientation::COLINEAR)
+    Orientation orientation = calculateOrientation(points[0],a,b);
+    if(orientation == Orientation::COLINEAR)
     {
-      return (distanceBetweenPoints(points[0],b) >= distanceBetweenPoints(poinst[0],a))? false : true;
+      return (distanceBetweenPoints(points[0],b) >= distanceBetweenPoints(points[0],a))? false : true;
     }
     else if(orientation == Orientation::COUNTER_CLOCKWISE)
     {
@@ -27,10 +29,10 @@ std::vector<Edge> SheathGrahamScan::getSheath()
   stack.push(points[0]);
   stack.push(points[1]);
   stack.push(points[2]);
-  
+
   for(int i = 3; i< points.size();++i)
   {
-    while(calculateOrientation(afterTop(stack), stack.top(), points[i]) != Orientation::COUNTER_CLOCKWISE )
+    while(stack.size() >= 2 && calculateOrientation(afterTop(stack), stack.top(), points[i]) != Orientation::COUNTER_CLOCKWISE )
     {
       stack.pop();
     }
@@ -43,11 +45,14 @@ std::vector<Edge> SheathGrahamScan::getSheath()
     sheathEdge.push_back(stack.top());
     stack.pop();
   }
+
+  return sheathEdge;
 }
 bool SheathGrahamScan::next()
 {
-
+  return false;
 }
+
 int SheathGrahamScan::findMostBottomPoint()
 {
   int ymin = points[0].y;
@@ -96,11 +101,8 @@ void SheathGrahamScan::cleanupPointsWithSameAngelAsPoint0()
   points.swap(newPoints);
 }
 
-sf::Vector2f SheathGrahamScan::afterTop(std::stack<sf::Vector2f> &stack)
+sf::Vector2f SheathGrahamScan::afterTop(std::stack<sf::Vector2f> stack)
 {
-  sf::Vector2f p = stack.top();
   stack.pop();
-  sf::Vector2f afterTopPoint = S.top();
-  stack.push(p);
-  return afterTopPoint;
+  return stack.top();
 }

@@ -3,6 +3,7 @@
 #include "RandomPointGenerator.hpp"
 #include "Renderer.hpp"
 #include "Sheath.hpp"
+#include "SheathGrahamScan.hpp"
 
 class Application
 {
@@ -15,5 +16,5 @@ private:
   Renderer m_renderer;
   RandomPointGenerator m_generator;
   std::vector<sf::Vector2f> m_points;
-  Sheath m_algorithm;
+  SheathGrahamScan m_algorithm;
 };

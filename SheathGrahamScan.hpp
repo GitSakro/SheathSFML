@@ -1,5 +1,5 @@
 #pragma once
-
+#include <stack>
 #include "IAlgorithmSheath.hpp"
 enum Orientation {
   COLINEAR,
@@ -9,16 +9,16 @@ enum Orientation {
 class SheathGrahamScan : public IAlgorithmSheath
 {
 public:
-  Sheath(const std::vector<sf::Vector2f> &points);
-  std::vector<Edge> getSheath();
+  SheathGrahamScan(const std::vector<sf::Vector2f> &points);
+  std::vector<sf::Vector2f> getSheath();
   bool next();
-  virtual ~Sheath() = default;
+  virtual ~SheathGrahamScan() = default;
 private:
-  int findPointWithMinX();
+  int findMostBottomPoint();
   std::vector<sf::Vector2f> points;
-  std::vector<Edge> sheathEdge;
+  std::vector<sf::Vector2f> sheathEdge;
   int distanceBetweenPoints(sf::Vector2f p1, sf::Vector2f p2);
   Orientation calculateOrientation(sf::Vector2f p, sf::Vector2f q, sf::Vector2f r);
-  void SheathGrahamScan::cleanupPointsWithSameAngelAsPoint0();
-  sf::Vector2f afterTop(std::stack<sf::Vector2f> &stack);
+  void cleanupPointsWithSameAngelAsPoint0();
+  sf::Vector2f afterTop(std::stack<sf::Vector2f> stack);
 };
