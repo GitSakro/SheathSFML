@@ -18,11 +18,7 @@ std::vector<sf::Vector2f> SheathGrahamScan::getSheath()
     {
       return (distanceBetweenPoints(points[0],b) >= distanceBetweenPoints(points[0],a))? false : true;
     }
-    else if(orientation == Orientation::COUNTER_CLOCKWISE)
-    {
-      return false;
-    }
-    return true;
+    return (orientation == Orientation::COUNTER_CLOCKWISE) ? false : true;
   });
 
   cleanupPointsWithSameAngelAsPoint0();
@@ -34,7 +30,7 @@ std::vector<sf::Vector2f> SheathGrahamScan::getSheath()
 
   for(int i = 3; i< points.size();++i)
   {
-    while(stack.size() >= 2 && calculateOrientation(afterTop(stack), stack.top(), points[i]) != Orientation::COUNTER_CLOCKWISE )
+    while(stack.size() >= 2 && (calculateOrientation(afterTop(stack), stack.top(), points[i]) == Orientation::COUNTER_CLOCKWISE))
     {
       stack.pop();
     }
@@ -47,7 +43,6 @@ std::vector<sf::Vector2f> SheathGrahamScan::getSheath()
     sheathEdge.push_back(stack.top());
     stack.pop();
   }
-
   return sheathEdge;
 }
 bool SheathGrahamScan::next()
@@ -62,7 +57,7 @@ int SheathGrahamScan::findMostBottomPoint()
   for(int i = 1; i< points.size(); i++)
   {
     int y = points[i].y;
-    if((y < ymin) || ((y == ymin) && points[i].x < points[bottomPointIdx].x))
+    if((y > ymin) || ((y == ymin) && points[i].x < points[bottomPointIdx].x))
     {
       ymin = y;
       bottomPointIdx = i;
@@ -78,7 +73,7 @@ Orientation SheathGrahamScan::calculateOrientation(sf::Vector2f p, sf::Vector2f 
   {
     return Orientation::COLINEAR;
   }
-  return (val > 0)? Orientation::CLOCKWISE: Orientation::COUNTER_CLOCKWISE;
+  return (val > 0)? Orientation::COUNTER_CLOCKWISE: Orientation::CLOCKWISE;
 }
 
 int SheathGrahamScan::distanceBetweenPoints(sf::Vector2f p1, sf::Vector2f p2)
@@ -92,11 +87,11 @@ void SheathGrahamScan::cleanupPointsWithSameAngelAsPoint0()
   std::vector<sf::Vector2f> newPoints;
   newPoints.reserve(points.size());
   newPoints.push_back(points[0]);
-  for (int i =1; i<points.size()-1;i++)
+  for (int i =1; i<points.size();i++)
   {
-    if(calculateOrientation(points[0],points[i], points[i+1]) == Orientation::COLINEAR)
+    if((i < (points.size() -1)) && calculateOrientation(points[0],points[i], points[i+1]) == Orientation::COLINEAR)
     {
-      continue;
+      i++;
     }
     newPoints.push_back(points[i]);
   }
