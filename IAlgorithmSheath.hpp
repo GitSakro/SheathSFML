@@ -1,15 +1,16 @@
 #pragma once;
 #include <vector>
+#include <SFML/Graphics.hpp>
 
-class Edge;
-class Point
+class Edge
 {
 public:
-  int x;
-  int y;
+  sf::Vector2f a;
+  sf::Vector2f b;
 };
+
 class IAlgorithmSheath
 {
-  virtual std::vector<Point> getSheath() = 0;
+  virtual std::vector<Edge> getSheath() = 0;
   virtual bool next() = 0;
 };

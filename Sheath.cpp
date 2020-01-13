@@ -1,13 +1,13 @@
 #include "Sheath.hpp"
 #include <algorithm>
 
-Sheath::Sheath(const std::vector<Point> &points)
+Sheath::Sheath(const std::vector<sf::Vector2f> &points)
 :points(points)
 {
   
 }
 
-std::vector<Point> Sheath::getSheath()
+std::vector<sf::Vector2f> Sheath::getSheath()
 {
   int mostLeftPoint = findPointWithMinX();
   
@@ -27,6 +27,7 @@ std::vector<Point> Sheath::getSheath()
   
   return sheathEdge;
 }
+
 bool Sheath::next()
 {
   return true;
