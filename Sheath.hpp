@@ -6,12 +6,14 @@ class Sheath : public IAlgorithmSheath
 {
 public:
   Sheath(const std::vector<sf::Vector2f> &points);
-  std::vector<Edge> getSheath();
+  std::vector<sf::Vector2f> getSheath();
   bool next();
   virtual ~Sheath() = default;
 private:
+  int p;
+  int mostLeftPoint;
   int findPointWithMinX();
   std::vector<sf::Vector2f> points;
-  std::vector<Edge> sheathEdge;
+  std::vector<sf::Vector2f> sheathEdge;
   bool isCounterClockWise(int p, int q, int r);
 };

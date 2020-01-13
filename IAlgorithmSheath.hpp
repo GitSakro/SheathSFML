@@ -1,4 +1,4 @@
-#pragma once;
+#pragma once
 #include <vector>
 #include <SFML/Graphics.hpp>
 
@@ -11,6 +11,6 @@ public:
 
 class IAlgorithmSheath
 {
-  virtual std::vector<Edge> getSheath() = 0;
+  virtual std::vector<sf::Vector2f> getSheath() = 0;
   virtual bool next() = 0;
 };

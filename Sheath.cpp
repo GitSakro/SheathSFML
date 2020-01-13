@@ -1,45 +1,33 @@
 #include "Sheath.hpp"
 #include <algorithm>
+#include <iostream>
 
 Sheath::Sheath(const std::vector<sf::Vector2f> &points)
 :points(points)
 {
-  
+  mostLeftPoint = findPointWithMinX();
+  p = mostLeftPoint;
 }
 
 std::vector<sf::Vector2f> Sheath::getSheath()
 {
-  int mostLeftPoint = findPointWithMinX();
-  int edgeIdx = 0;
-  Edge edge;
-  do
-  {
-    if(edgeIdx == 0)
-    {
-      edge.a = points[p];
-      edgeIdx++;
-    }
-    else {
-      edge.b = points[p];
-      sheathEdge.push_back(edge);
-      edge.a = points[p];
-    }
-    q = (p+1)%points.size();
-    for(int i = 0; i < points.size(); i++)
-    {
-      if(isCounterClockWise(p,i,q))
-      {
-        q = i;
-      }
-    }
-  } while (p == mostLeftPoint);
-  
   return sheathEdge;
 }
 
 bool Sheath::next()
 {
-  return true;
+  sheathEdge.push_back(points[p]);
+  int q = (p+1)%points.size();
+  for(int i = 0; i < points.size(); i++)
+  {
+    if(isCounterClockWise(p,i,q))
+    {
+      q = i;
+    }
+  }
+  p=q;
+
+  return p == mostLeftPoint;
 }
 
 int Sheath::findPointWithMinX()
