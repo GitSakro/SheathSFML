@@ -10,11 +10,20 @@ Sheath::Sheath(const std::vector<sf::Vector2f> &points)
 std::vector<sf::Vector2f> Sheath::getSheath()
 {
   int mostLeftPoint = findPointWithMinX();
-  
-  int p = mostLeftPoint,q;
+  int edgeIdx = 0;
+  Edge edge;
   do
   {
-    sheathEdge.push_back(points[p]);
+    if(edgeIdx == 0)
+    {
+      edge.a = points[p];
+      edgeIdx++;
+    }
+    else {
+      edge.b = points[p];
+      sheathEdge.push_back(edge);
+      edge.a = points[p];
+    }
     q = (p+1)%points.size();
     for(int i = 0; i < points.size(); i++)
     {
