@@ -4,14 +4,12 @@
 #include <stack>
 #include <iostream>
 
-SheathGrahamScan::SheathGrahamScan(const std::vector<sf::Vector2f> &points)
-  :points(points)
-{}
-std::vector<sf::Vector2f> SheathGrahamScan::getSheath()
-{
-  int bottomIdx = findMostBottomPoint();
+SheathGrahamScan::SheathGrahamScan(const std::vector<sf::Vector2f> &cr_points)
+ {
+  std::vector<sf::Vector2f> points = cr_points;
+  int bottomIdx = findMostBottomPoint(points);
   std::iter_swap(points.begin(), points.begin() + bottomIdx);
-  std::sort(points.begin()+1, points.end(), [this](const sf::Vector2f &a, const sf::Vector2f &b)
+  std::sort(points.begin()+1, points.end(), [&](const sf::Vector2f &a, const sf::Vector2f &b)
   {
     Orientation orientation = calculateOrientation(points[0],a,b);
     if(orientation == Orientation::COLINEAR)
@@ -20,14 +18,10 @@ std::vector<sf::Vector2f> SheathGrahamScan::getSheath()
     }
     return (orientation == Orientation::COUNTER_CLOCKWISE) ? false : true;
   });
-
-  cleanupPointsWithSameAngelAsPoint0();
-
-  std::stack<sf::Vector2f> stack;
+  cleanupPointsWithSameAngelAsPoint0(points);
   stack.push(points[0]);
   stack.push(points[1]);
   stack.push(points[2]);
-
   for(int i = 3; i< points.size();++i)
   {
     while(stack.size() >= 2 && (calculateOrientation(afterTop(stack), stack.top(), points[i]) == Orientation::COUNTER_CLOCKWISE))
@@ -36,21 +30,24 @@ std::vector<sf::Vector2f> SheathGrahamScan::getSheath()
     }
     stack.push(points[i]);
   }
-
   sheathEdge.reserve(stack.size());
-  while(!stack.empty())
-  {
-    sheathEdge.push_back(stack.top());
-    stack.pop();
-  }
+ }
+std::vector<sf::Vector2f> SheathGrahamScan::getSheath()
+{
   return sheathEdge;
 }
 bool SheathGrahamScan::next()
 {
-  return false;
+  if(!stack.empty())
+  {
+    sheathEdge.push_back(stack.top());
+    stack.pop();
+    return false;
+  }
+  return true;
 }
 
-int SheathGrahamScan::findMostBottomPoint()
+int SheathGrahamScan::findMostBottomPoint(std::vector<sf::Vector2f>& points)
 {
   int ymin = points[0].y;
   int bottomPointIdx = 0;
@@ -82,7 +79,7 @@ int SheathGrahamScan::distanceBetweenPoints(sf::Vector2f p1, sf::Vector2f p2)
         (p1.y - p2.y)*(p1.y - p2.y); 
 }
 
-void SheathGrahamScan::cleanupPointsWithSameAngelAsPoint0()
+void SheathGrahamScan::cleanupPointsWithSameAngelAsPoint0(std::vector<sf::Vector2f>& points)
 {
   std::vector<sf::Vector2f> newPoints;
   newPoints.reserve(points.size());
