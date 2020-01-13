@@ -25,6 +25,8 @@ std::vector<sf::Vector2f> SheathGrahamScan::getSheath()
     return true;
   });
 
+  cleanupPointsWithSameAngelAsPoint0();
+
   std::stack<sf::Vector2f> stack;
   stack.push(points[0]);
   stack.push(points[1]);
