@@ -1,6 +1,6 @@
-CC=mpic++
+CC=g++
 CFLAGS  = -Wall -std=c++17 -pthread
-LFLAGS  = -lsfml-graphics -lsfml-window -lsfml-system
+LFLAGS  = -lsfml-graphics -lsfml-window -lsfml-system -fopenmp
 
 SOURCES += main.cpp
 SOURCES += Application.cpp
@@ -8,7 +8,6 @@ SOURCES += RandomPointGenerator.cpp
 SOURCES += Renderer.cpp
 SOURCES += JarvisSheath.cpp
 SOURCES += SheathGrahamScan.cpp
-SOURCES += MpiScheduler.cpp
 
 # Objs are all the sources, with .cpp replaced by .o
 OBJS := $(SOURCES:.cpp=.o)
@@ -21,7 +20,7 @@ re-compile: $(OBJS)
 compile: clean re-compile
 
 run : 
-	mpirun -np $(NP) app.out 
+	./app.out 
 
 .cpp.o:
 	$(CC) $(CFLAGS) $(INCLUDES) -c $<
