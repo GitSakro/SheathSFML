@@ -3,49 +3,91 @@
 #include <vector>
 #include <SFML/Graphics.hpp>
 #include <iostream>
-
 #include "Application.hpp"
 
 const sf::Time TIME_PER_UPDATE = sf::seconds(1);
-const sf::VideoMode VIDEO_MODE = sf::VideoMode(640,480);
+const sf::VideoMode VIDEO_MODE = sf::VideoMode(1024,1024);
 const char * APP_NAME = "Sheath algorithm";
 
 Application::Application()
-  : m_window{VIDEO_MODE, APP_NAME},
-    m_renderer{m_window},
-    m_points{m_generator.generate(sf::FloatRect{10, 10, 620, 460}, 20)},
-    m_algorithm{m_points}
 {
-
+  if(m_scheduler.isRootProcess())
+  {
+    std::cout << "Root process : generating points " << std::endl; 
+    m_window.create(VIDEO_MODE, APP_NAME);
+    m_points = m_generator.generate(sf::FloatRect{10, 10, 1000, 1000}, NUMBER_OF_POINTS);
+    m_renderer = std::make_unique<Renderer>(m_window);
+  }
+  std::cout << "Process number " << m_scheduler.getProcessNumber() << " reciving points... please wait" << std::endl;
+  m_pointsPerProcess = m_scheduler.ScatterFromRoot(m_points,MPI_FLOAT,NUMBER_OF_POINTS/2);
+  std::cout << "Process number " << m_scheduler.getProcessNumber() << " starting job. Please wait for result..." << std::endl;
+  m_algorithm = std::make_unique<Algorithm_t>(m_pointsPerProcess);
 }
 
 void Application::run()
 {
-  sf::Clock clock;
-  sf::Time timeSinceLastUpdate = sf::Time::Zero;
-  bool isCompleted = false;
-  while (m_window.isOpen())
+  std::vector<std::vector<Point>> sheaths;
+  sheaths.reserve(4);
+  if(m_scheduler.isRootProcess())
   {
-    sf::Time dt = clock.restart();
-    timeSinceLastUpdate += dt;
-
-    sf::Event event;
-
-    while (m_window.pollEvent(event))
+    sheaths.push_back(m_algorithm->getSheath());
+    for(int i=1; i < m_scheduler.getTotalProcessNumber(); ++i)
     {
-        if (event.type == sf::Event::Closed)
-            m_window.close();
+      auto sheath = m_scheduler.ReciveByRoot<Point>(MPI_FLOAT,i);
+      sheaths.push_back(sheath);
     }
-    while (timeSinceLastUpdate > TIME_PER_UPDATE) {
-      timeSinceLastUpdate -= TIME_PER_UPDATE;
-      if(!isCompleted)
-        isCompleted = m_algorithm.next();
+  }
+  else 
+  {
+    m_scheduler.SendToRoot(m_algorithm->getSheath(), MPI_FLOAT);
+  }
+
+  if(m_scheduler.isRootProcess())
+  {
+    std::map<int, sf::Color> colorMap {
+      { 0, sf::Color::Blue},
+      { 1, sf::Color::Cyan},
+      { 2, sf::Color::Magenta},
+      { 3, sf::Color::Yellow},
+    };
+    std::cout << "Drawing sheath made by each process " << std::endl;
+    std::cout << "Color code: " << std::endl;
+
+    std::cout << "Process number " << 0 << " color code: Blue" << std::endl;
+    std::cout << "Process number " << 1 << " color code: Cyan" << std::endl;
+    std::cout << "Process number " << 2 << " color code: Magenta" << std::endl;
+    std::cout << "Process number " << 3 << " color code: Yellow" << std::endl;
+
+
+    std::cout << "Click space to continue " << std::endl;
+    while (m_window.isOpen())
+    {
+      sf::Event event;
+
+      while (m_window.pollEvent(event))
+      {
+          if (event.type == sf::Event::Closed)
+              m_window.close();
+          if (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::Space)
+          {
+            std::vector<Point> finalPoints;
+            for(auto sheath : sheaths)
+            {
+              finalPoints.insert(finalPoints.end(), sheath.begin(),sheath.end());
+            }
+            sheaths.clear();
+            m_algorithm = std::make_unique<Algorithm_t>(finalPoints);
+            sheaths.push_back(m_algorithm->getSheath());
+          }
+      }
+      m_window.clear();
+      for(size_t i = 0; i < sheaths.size(); i++)
+      {
+        m_renderer->drawSheath(sheaths[i],colorMap[i]);
+      }
+      m_renderer->drawPoints(m_points);
+      m_window.display();
     }
-    m_window.clear();
-    auto sheath = m_algorithm.getSheath();
-    m_renderer.drawSheath(sheath, isCompleted);
-    m_renderer.drawPoints(m_points);
-    m_window.display();
   }
 }
 

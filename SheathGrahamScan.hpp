@@ -1,6 +1,7 @@
 #pragma once
 #include <stack>
 #include "IAlgorithmSheath.hpp"
+#include "Point.hpp"
 enum Orientation {
   COLINEAR,
   CLOCKWISE,
@@ -9,16 +10,15 @@ enum Orientation {
 class SheathGrahamScan : public IAlgorithmSheath
 {
 public:
-  SheathGrahamScan(const std::vector<sf::Vector2f> &cr_points);
-  std::vector<sf::Vector2f> getSheath();
-  bool next();
-  virtual ~SheathGrahamScan() = default;
+  SheathGrahamScan(const std::vector<Point> &cr_points);
+  std::vector<Point> getSheath();
+  ~SheathGrahamScan() = default;
 private:
-  int findMostBottomPoint(std::vector<sf::Vector2f>& points);
-  std::vector<sf::Vector2f> sheathEdge;
-  std::stack<sf::Vector2f> stack;
-  int distanceBetweenPoints(sf::Vector2f p1, sf::Vector2f p2);
-  Orientation calculateOrientation(sf::Vector2f p, sf::Vector2f q, sf::Vector2f r);
-  void cleanupPointsWithSameAngelAsPoint0(std::vector<sf::Vector2f>& points);
-  sf::Vector2f afterTop(std::stack<sf::Vector2f> stack);
+  int findMostBottomPoint(std::vector<Point>& points);
+  std::vector<Point> sheathEdge;
+  std::stack<Point> stack;
+  int distanceBetweenPoints(Point p1, Point p2);
+  Orientation calculateOrientation(Point p, Point q, Point r);
+  void cleanupPointsWithSameAngelAsPoint0(std::vector<Point>& points);
+  Point afterTop(std::stack<Point> stack);
 };

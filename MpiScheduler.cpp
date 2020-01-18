@@ -33,4 +33,9 @@ namespace MpiWrapper{
   {
     return getProcessNumber() == 0;
   }
+  
+  MpiScheduler::~MpiScheduler()
+  {
+    finalize();
+  }
 }

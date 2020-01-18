@@ -2,19 +2,24 @@
 #include <SFML/Graphics.hpp>
 #include "RandomPointGenerator.hpp"
 #include "Renderer.hpp"
-#include "Sheath.hpp"
+#include "JarvisSheath.hpp"
 #include "SheathGrahamScan.hpp"
+#include "MpiScheduler.hpp"
+#include "Point.hpp"
 
 class Application
 {
+using Algorithm_t = SheathGrahamScan;
 public:
   Application();
   void run();
-
 private:
   sf::RenderWindow m_window;
-  Renderer m_renderer;
+  std::unique_ptr<Renderer> m_renderer;
   RandomPointGenerator m_generator;
-  std::vector<sf::Vector2f> m_points;
-  SheathGrahamScan m_algorithm;
+  std::vector<Point> m_points;
+  std::vector<Point> m_pointsPerProcess;
+  std::unique_ptr<Algorithm_t> m_algorithm;
+  MpiWrapper::MpiScheduler m_scheduler;
+  static const int NUMBER_OF_POINTS = 12;
 };
