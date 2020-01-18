@@ -24,21 +24,21 @@ SheathGrahamScan::SheathGrahamScan(const std::vector<Point> &cr_points)
   stack.push(points[2]);
   for(size_t i = 3; i< points.size();++i)
   {
-    while(stack.size() >= 2 && (calculateOrientation(afterTop(stack), stack.top(), points[i]) == Orientation::COUNTER_CLOCKWISE))
+    while(stack.size() >= 2 && (calculateOrientation(afterTop(stack), stack.top(), points[i]) != Orientation::CLOCKWISE))
     {
       stack.pop();
     }
     stack.push(points[i]);
   }
   sheathEdge.reserve(stack.size());
- }
-std::vector<Point> SheathGrahamScan::getSheath()
-{
   while(!stack.empty())
   {
     sheathEdge.push_back(stack.top());
     stack.pop();
   }
+ }
+std::vector<Point> SheathGrahamScan::getSheath()
+{
   return sheathEdge;
 }
 
@@ -81,7 +81,7 @@ void SheathGrahamScan::cleanupPointsWithSameAngelAsPoint0(std::vector<Point>& po
   newPoints.push_back(points[0]);
   for (size_t i =1; i<points.size();i++)
   {
-    if((i < (points.size() -1)) && calculateOrientation(points[0],points[i], points[i+1]) == Orientation::COLINEAR)
+    while((i < (points.size() -1)) && calculateOrientation(points[0],points[i], points[i+1]) == Orientation::COLINEAR)
     {
       i++;
     }
