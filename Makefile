@@ -1,5 +1,5 @@
 CC=g++
-CFLAGS  = -Wall -std=c++17 -pthread
+CFLAGS  = -Wall -std=c++17 -pthread -fopenmp
 LFLAGS  = -lsfml-graphics -lsfml-window -lsfml-system -fopenmp
 
 SOURCES += main.cpp

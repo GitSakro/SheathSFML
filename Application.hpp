@@ -8,7 +8,7 @@
 
 class Application
 {
-using Algorithm_t = SheathGrahamScan;
+using Algorithm_t = JarvisSheath;
 public:
   Application();
   void run();
@@ -17,6 +17,8 @@ private:
   std::unique_ptr<Renderer> m_renderer;
   RandomPointGenerator m_generator;
   std::vector<Point> m_points;
-  std::unique_ptr<Algorithm_t> m_algorithm;
+  std::vector<std::vector<Point>> m_sheats;
   static const int NUMBER_OF_POINTS = 10'000;
+  static const int NUMBER_OF_THREADS = 4;
+  static const int CHUNK_SIZE = 100;
 };

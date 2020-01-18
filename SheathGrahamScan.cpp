@@ -3,6 +3,7 @@
 #include <vector>
 #include <stack>
 #include <iostream>
+#include "omp.h"
 
 SheathGrahamScan::SheathGrahamScan(const std::vector<Point> &cr_points)
  {
@@ -79,7 +80,6 @@ void SheathGrahamScan::cleanupPointsWithSameAngelAsPoint0(std::vector<Point>& po
   std::vector<Point> newPoints;
   newPoints.reserve(points.size());
   newPoints.push_back(points[0]);
-  #pragma omp parallel for schedule(dynamic)
   for (size_t i =1; i<points.size();i++)
   {
     while((i < (points.size() -1)) && calculateOrientation(points[0],points[i], points[i+1]) == Orientation::COLINEAR)
