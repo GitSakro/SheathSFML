@@ -6,22 +6,37 @@
 #include "Application.hpp"
 
 const sf::Time TIME_PER_UPDATE = sf::seconds(1);
-const sf::VideoMode VIDEO_MODE = sf::VideoMode(1024,1024);
+const sf::VideoMode VIDEO_MODE = sf::VideoMode(1200,900);
 const char * APP_NAME = "Sheath algorithm";
 
 Application::Application()
 {
   if(m_scheduler.isRootProcess())
   {
+    double start = MPI_Wtime();
     std::cout << "Root process : generating points " << std::endl; 
     m_window.create(VIDEO_MODE, APP_NAME);
-    m_points = m_generator.generate(sf::FloatRect{10, 10, 1000, 1000}, NUMBER_OF_POINTS);
+    m_points = m_generator.generate(sf::FloatRect{10, 10, 1100, 840}, NUMBER_OF_POINTS);
     m_renderer = std::make_unique<Renderer>(m_window);
+    double end = MPI_Wtime();
+    std::cout << "Process: Point generation took " << end - start << " seconds to run." << std::endl;
   }
+  double start = MPI_Wtime();
   std::cout << "Process number " << m_scheduler.getProcessNumber() << " reciving points... please wait" << std::endl;
   m_pointsPerProcess = m_scheduler.ScatterFromRoot(m_points,MPI_FLOAT,NUMBER_OF_POINTS/2);
+  double end = MPI_Wtime();
+  if(m_scheduler.isRootProcess())
+  {
+    std::cout << "Process: Distribution of point took " << end - start << " seconds to run." << std::endl;
+  }
+  start = MPI_Wtime();
   std::cout << "Process number " << m_scheduler.getProcessNumber() << " starting job. Please wait for result..." << std::endl;
   m_algorithm = std::make_unique<Algorithm_t>(m_pointsPerProcess);
+  end = MPI_Wtime();
+  if(m_scheduler.isRootProcess())
+  {
+    std::cout << "Process: Create convex hull took " << end - start << " seconds to run." << std::endl;
+  }
 }
 
 void Application::run()
@@ -76,7 +91,10 @@ void Application::run()
               finalPoints.insert(finalPoints.end(), sheath.begin(),sheath.end());
             }
             sheaths.clear();
+            double start = MPI_Wtime();
             m_algorithm = std::make_unique<Algorithm_t>(finalPoints);
+            double end = MPI_Wtime();
+            std::cout << "Process: Create final convex hull took " << end - start << " seconds to run." << std::endl;
             sheaths.push_back(m_algorithm->getSheath());
           }
       }
