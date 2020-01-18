@@ -9,7 +9,7 @@
 
 class Application
 {
-using Algorithm_t = SheathGrahamScan;
+using Algorithm_t = JarvisSheath;
 public:
   Application();
   void run();
@@ -21,5 +21,5 @@ private:
   std::vector<Point> m_pointsPerProcess;
   std::unique_ptr<Algorithm_t> m_algorithm;
   MpiWrapper::MpiScheduler m_scheduler;
-  static const int NUMBER_OF_POINTS = 12;
+  static const int NUMBER_OF_POINTS = 10'000;
 };
