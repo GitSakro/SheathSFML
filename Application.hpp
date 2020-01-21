@@ -9,7 +9,7 @@
 
 class Application
 {
-using Algorithm_t = JarvisSheath;
+using Algorithm_t = SheathGrahamScan;
 public:
   Application();
   void run();

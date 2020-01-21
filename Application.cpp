@@ -23,7 +23,7 @@ Application::Application()
   }
   double start = MPI_Wtime();
   std::cout << "Process number " << m_scheduler.getProcessNumber() << " reciving points... please wait" << std::endl;
-  m_pointsPerProcess = m_scheduler.ScatterFromRoot(m_points,MPI_FLOAT,NUMBER_OF_POINTS/2);
+  m_pointsPerProcess = m_scheduler.ScatterFromRoot(m_points, MPI_FLOAT, (NUMBER_OF_POINTS/m_scheduler.getTotalProcessNumber())*2);
   double end = MPI_Wtime();
   if(m_scheduler.isRootProcess())
   {
@@ -42,7 +42,7 @@ Application::Application()
 void Application::run()
 {
   std::vector<std::vector<Point>> sheaths;
-  sheaths.reserve(4);
+  sheaths.reserve(m_scheduler.getTotalProcessNumber());
   if(m_scheduler.isRootProcess())
   {
     sheaths.push_back(m_algorithm->getSheath());
@@ -64,15 +64,17 @@ void Application::run()
       { 1, sf::Color::Cyan},
       { 2, sf::Color::Magenta},
       { 3, sf::Color::Yellow},
+      { 4, sf::Color::Red},
+      { 5, sf::Color::White},
     };
     std::cout << "Drawing sheath made by each process " << std::endl;
     std::cout << "Color code: " << std::endl;
 
-    std::cout << "Process number " << 0 << " color code: Blue" << std::endl;
-    std::cout << "Process number " << 1 << " color code: Cyan" << std::endl;
-    std::cout << "Process number " << 2 << " color code: Magenta" << std::endl;
-    std::cout << "Process number " << 3 << " color code: Yellow" << std::endl;
-
+    for(int i = 0; i < m_scheduler.getTotalProcessNumber(); ++i)
+    {
+      std::cout << "Process number " << i << "color: {" 
+        << (int)colorMap[i].r << ", " << (int)colorMap[i].g << ", " << (int)colorMap[i].b << "}." << std::endl;
+    }
 
     std::cout << "Click space to continue " << std::endl;
     while (m_window.isOpen())
